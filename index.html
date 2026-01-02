@@ -413,11 +413,46 @@
   ];
 
   // إذا سأل: مين عملك/طورك؟
-  const creatorTriggers = [
-    "مين عملك", "مين طورك", "من عملك", "من طورك", "مين صمّمك", "مين صممك",
-    "who made you", "who built you", "who developed you", "who created you"
+const creatorReply = "طورني **المهندس فرحان الخوالدة**.";
+
+function looksLikeCreatorQuestion(text){
+  const t = (text || "").toLowerCase().trim();
+
+  // كلمات مفتاحية واسعة بالعربي والانجليزي
+  const ar = [
+    "مين", "من", "مَن", "شو اسم", "صاحب", "مالك", "مطور", "مطوّر", "مطورك", "مطوّرك",
+    "برمج", "مبرمج", "برمجك", "صمم", "مصمم", "صمّم", "تصميم", "سواك", "سواك",
+    "عملك", "صنعك", "انشأك", "أنشأك", "طورك", "طوّرك", "بناك", "اسس", "أسس",
+    "مين عمل", "مين طور", "مين برمج", "مين صمم", "مين سوا", "مين صنع", "مين انشأ",
+    "مين أنشأ", "مين بنا", "مين صاحب", "مين مالك", "مين اللي عملك", "مين اللي طورك",
+    "مين اللي برمجك", "مين اللي صممك", "مين اللي سواك", "مين اللي صنعك"
   ];
-  const creatorReply = "تم تطويري بواسطة **المهندس فرحان الخوالدة**.";
+
+  const en = [
+    "who made you", "who built you", "who developed you", "who created you",
+    "who programmed you", "who coded you", "who designed you", "who owns you",
+    "who is your developer", "who is your creator", "who is your maker",
+    "who trained you", "who made this", "who built this"
+  ];
+
+  // لو السؤال يحتوي "من/مين" + أي كلمة تدل على التطوير/الإنشاء، اعتبره سؤال مطوّر
+  const arMustHave = ["عمل", "طور", "طوّر", "برمج", "صمم", "صمّم", "سوا", "صنع", "انشأ", "أنشأ", "بنى", "اسس", "أسس", "مطور", "مطوّر", "مبرمج", "مصمم", "صاحب", "مالك"];
+
+  const hasArabicTrigger =
+    ar.some(k => t.includes(k)) &&
+    arMustHave.some(k => t.includes(k));
+
+  const hasEnglishTrigger =
+    en.some(k => t.includes(k));
+
+  // كمان حالات مباشرة حتى لو بدون "مين"
+  const direct = [
+    "مطورك مين", "مين مطورك", "مين مبرمجك", "مين مصممك", "مين صاحبك", "مين مالكك"
+  ].some(k => t.includes(k));
+
+  return hasArabicTrigger || hasEnglishTrigger || direct;
+}
+
 
   const $ = (id) => document.getElementById(id);
   let chat = []; // {role, content, t}
