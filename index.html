@@ -3,59 +3,623 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>شات مهندس طاقة</title>
+  <title>Eng-Farhan-GPT</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
-    body{font-family:sans-serif;max-width:800px;margin:20px auto}
-    #chat{border:1px solid #ddd;padding:12px;height:420px;overflow:auto;border-radius:10px}
-    .u{font-weight:700} .a{color:#0a6}
-    textarea{width:100%;height:70px;margin-top:10px}
-    button{padding:10px 14px;margin-top:8px;cursor:pointer}
+    :root{
+      --bg:#070a12;
+      --card: rgba(255,255,255,.06);
+      --card2: rgba(255,255,255,.10);
+      --stroke: rgba(255,255,255,.12);
+      --txt:#eaf0ff;
+      --muted:#b3bdd9;
+      --accent:#6ee7ff;
+      --accent2:#60a5fa;
+      --ok:#34d399;
+      --warn:#ff6b6b;
+      --shadow: 0 18px 60px rgba(0,0,0,.40);
+      --r: 22px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    @media (prefers-color-scheme: light){
+      :root{
+        --bg:#f6f7fb;
+        --card: rgba(0,0,0,.05);
+        --card2: rgba(0,0,0,.07);
+        --stroke: rgba(0,0,0,.10);
+        --txt:#0b1220;
+        --muted:#58627a;
+        --shadow: 0 18px 60px rgba(0,0,0,.12);
+      }
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans Arabic", "Noto Naskh Arabic", sans-serif;
+      background:
+        radial-gradient(900px 520px at 18% 12%, rgba(110,231,255,.22), transparent 55%),
+        radial-gradient(900px 520px at 82% 10%, rgba(96,165,250,.20), transparent 55%),
+        var(--bg);
+      color:var(--txt);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+    }
+    .app{
+      width:min(1060px, 100%);
+      height:min(820px, calc(100vh - 36px));
+      display:grid;
+      grid-template-columns: 360px 1fr;
+      gap:14px;
+    }
+    @media (max-width: 940px){
+      .app{grid-template-columns:1fr;height:auto}
+      .sidebar{order:2}
+      .chat{order:1;min-height:72vh}
+    }
+    .card{
+      background:var(--card);
+      border:1px solid var(--stroke);
+      border-radius:var(--r);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      backdrop-filter: blur(10px);
+    }
+
+    /* Sidebar */
+    .sidebar{display:flex;flex-direction:column}
+    .brand{
+      padding:16px 16px 12px;
+      display:flex;gap:12px;align-items:center;
+      border-bottom:1px solid var(--stroke);
+    }
+    .logo{
+      width:48px;height:48px;border-radius:16px;
+      background: linear-gradient(135deg, rgba(110,231,255,.95), rgba(96,165,250,.95));
+      display:grid;place-items:center;
+      color:#001018;font-weight:900;
+      box-shadow: 0 14px 34px rgba(96,165,250,.20);
+      flex:0 0 auto;
+    }
+    .brand h1{margin:0;font-size:16px;line-height:1.2}
+    .brand p{margin:4px 0 0;font-size:12px;color:var(--muted)}
+    .side{
+      padding:14px 16px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .pill{
+      background:var(--card2);
+      border:1px solid var(--stroke);
+      border-radius:999px;
+      padding:10px 12px;
+      display:flex;gap:10px;align-items:center;
+      font-size:13px;color:var(--muted);
+    }
+    .dot{width:9px;height:9px;border-radius:99px;background:var(--ok);box-shadow:0 0 0 6px rgba(52,211,153,.12)}
+    .hint{
+      padding:12px;
+      border-radius:16px;
+      border:1px dashed rgba(255,255,255,.18);
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.6;
+    }
+    @media (prefers-color-scheme: light){
+      .hint{border-color: rgba(0,0,0,.14)}
+    }
+    .btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    button{
+      border:0;border-radius:16px;
+      padding:10px 12px;
+      cursor:pointer;
+      font-weight:800;
+      background:var(--card2);
+      color:var(--txt);
+      border:1px solid var(--stroke);
+      transition: transform .08s ease, background .2s ease;
+    }
+    button:hover{background:rgba(255,255,255,.12)}
+    button:active{transform: translateY(1px)}
+    .primary{
+      background: linear-gradient(135deg, rgba(110,231,255,.22), rgba(96,165,250,.22));
+      border-color: rgba(110,231,255,.25);
+    }
+    .danger{
+      background: rgba(255,107,107,.18);
+      border-color: rgba(255,107,107,.35);
+      color:#fff;
+    }
+    .small{
+      font-size:12px;color:var(--muted);line-height:1.55
+    }
+    .kbd{
+      font-family:var(--mono);
+      font-size:11px;
+      padding:2px 6px;border-radius:9px;
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.14);
+      color:var(--muted);
+    }
+    @media (prefers-color-scheme: light){
+      .kbd{background:rgba(0,0,0,.05);border-color:rgba(0,0,0,.12)}
+    }
+
+    /* Chat */
+    .chat{display:flex;flex-direction:column}
+    .head{
+      padding:14px 16px;
+      border-bottom:1px solid var(--stroke);
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+    }
+    .head .t{display:flex;flex-direction:column;gap:4px}
+    .head h2{margin:0;font-size:14px}
+    .head span{font-size:12px;color:var(--muted)}
+    .status{
+      display:flex;align-items:center;gap:10px;
+      font-size:12px;color:var(--muted);
+      background:var(--card2);
+      border:1px solid var(--stroke);
+      border-radius:999px;
+      padding:8px 10px;
+      white-space:nowrap;
+    }
+    .status .dot{width:7px;height:7px;box-shadow:none}
+    .msgs{padding:16px;overflow:auto;flex:1;scroll-behavior:smooth}
+
+    .row{display:flex;gap:10px;align-items:flex-end;margin:10px 0}
+    .row.me{justify-content:flex-start}
+    .row.ai{justify-content:flex-end}
+    .ava{
+      width:36px;height:36px;border-radius:14px;
+      display:grid;place-items:center;
+      font-weight:900;
+      border:1px solid var(--stroke);
+      background:var(--card2);
+      color:var(--muted);
+      flex:0 0 auto;
+      user-select:none;
+    }
+    .ava.ai{
+      background: linear-gradient(135deg, rgba(110,231,255,.16), rgba(96,165,250,.16));
+      color:var(--txt);
+      border-color: rgba(110,231,255,.20);
+    }
+    .bubble{
+      max-width:min(660px, 78%);
+      border-radius:18px;
+      padding:12px 12px 10px;
+      line-height:1.65;
+      border:1px solid var(--stroke);
+      background:var(--card2);
+      position:relative;
+    }
+    .bubble.me{border-top-left-radius:8px}
+    .bubble.ai{
+      border-top-right-radius:8px;
+      background: linear-gradient(135deg, rgba(110,231,255,.14), rgba(96,165,250,.14));
+      border-color: rgba(110,231,255,.20);
+    }
+    .meta{
+      margin-top:6px;
+      font-size:11px;
+      color:var(--muted);
+      display:flex;
+      justify-content:flex-end;
+      gap:10px;
+    }
+
+    .bubble pre{
+      background: rgba(0,0,0,.22);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 12px;
+      padding: 10px;
+      overflow:auto;
+      font-family: var(--mono);
+      font-size: 12px;
+      direction:ltr;
+      text-align:left;
+    }
+    .bubble code{font-family:var(--mono);font-size:.95em}
+
+    /* Waiting card */
+    .waiting{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      background: var(--card2);
+      border:1px solid var(--stroke);
+      border-radius: 18px;
+      padding: 12px;
+      color: var(--muted);
+      max-width: min(660px, 78%);
+    }
+    .bar{
+      width: 160px;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.10);
+      overflow:hidden;
+      border: 1px solid rgba(255,255,255,.10);
+      flex:0 0 auto;
+    }
+    .bar > i{
+      display:block;
+      height:100%;
+      width:35%;
+      background: linear-gradient(90deg, rgba(110,231,255,.35), rgba(96,165,250,.35));
+      animation: load 1.2s infinite ease-in-out;
+    }
+    @keyframes load{
+      0%{transform: translateX(-120%)}
+      100%{transform: translateX(320%)}
+    }
+    .waitText b{color:var(--txt)}
+    .timer{
+      font-family:var(--mono);
+      font-size:12px;
+      padding:4px 8px;
+      border-radius: 12px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.12);
+      color: var(--muted);
+      margin-inline-start:auto;
+      white-space:nowrap;
+    }
+    @media (prefers-color-scheme: light){
+      .timer{background: rgba(0,0,0,.05);border-color: rgba(0,0,0,.10)}
+      .bar{background: rgba(0,0,0,.06);border-color: rgba(0,0,0,.10)}
+    }
+
+    /* Composer */
+    .composer{
+      padding:12px;
+      border-top:1px solid var(--stroke);
+      display:grid;
+      grid-template-columns: 1fr auto;
+      gap:10px;
+      align-items:end;
+      background: linear-gradient(180deg, transparent, rgba(0,0,0,.08));
+    }
+    textarea{
+      resize:none;
+      width:100%;
+      min-height:56px;
+      max-height: 180px;
+      padding:12px 12px;
+      border-radius: 18px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.10);
+      color: var(--txt);
+      outline:none;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+    @media (prefers-color-scheme: light){
+      textarea{background: rgba(255,255,255,.70);border-color: rgba(0,0,0,.10)}
+    }
+    .send{
+      height:56px;
+      padding:0 16px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(110,231,255,.35), rgba(96,165,250,.35));
+      border-color: rgba(110,231,255,.35);
+      display:flex;align-items:center;gap:10px;
+      white-space:nowrap;
+    }
+    .send[disabled]{
+      opacity:.55;
+      cursor:not-allowed;
+      filter: grayscale(.2);
+    }
+    a{color:var(--accent)}
   </style>
 </head>
 <body>
-  <h2>⚡ شات مهندس طاقة</h2>
-  <div id="chat"></div>
+  <div class="app">
+    <section class="card sidebar">
+      <div class="brand">
+        <div class="logo">⚡</div>
+        <div>
+          <h1>Eng-Farhan-GPT</h1>
+          <p>Energy Engineer AI · Global-Style Chat</p>
+        </div>
+      </div>
 
-  <textarea id="msg" placeholder="اكتب سؤالك..."></textarea>
-  <button id="send">إرسال</button>
+      <div class="side">
+        <div class="pill">
+          <span class="dot" id="connDot"></span>
+          <span id="connText">جاهز للاتصال</span>
+        </div>
+
+        <div class="hint">
+          <b>لنتائج أدق:</b><br>
+          اذكر: البلد/التعرفة، نوع المبنى، المساحة، الأجهزة الثقيلة، ساعات التشغيل، وأرقام آخر فاتورتين.
+        </div>
+
+        <div class="btns">
+          <button class="primary" id="btnExport">تصدير</button>
+          <button class="danger" id="btnClear">مسح</button>
+        </div>
+
+        <div class="small">
+          إرسال: <span class="kbd">Enter</span> · سطر جديد: <span class="kbd">Shift</span> + <span class="kbd">Enter</span><br>
+          يتم حفظ المحادثة محليًا على جهازك.
+        </div>
+      </div>
+    </section>
+
+    <section class="card chat">
+      <div class="head">
+        <div class="t">
+          <h2>استشارة طاقة — Eng-Farhan-GPT</h2>
+          <span id="subtitle">اسألني عن تخفيض الفاتورة، التكييف، العزل، أو الطاقة الشمسية.</span>
+        </div>
+        <div class="status">
+          <span class="dot" id="statusDot"></span>
+          <span id="statusText">جاهز</span>
+        </div>
+      </div>
+
+      <div class="msgs" id="msgs"></div>
+
+      <div class="composer">
+        <textarea id="input" placeholder="مثال: فاتورتي 120 دينار، بيت 140م²، مكيفين 1.5 طن… شو الحل؟"></textarea>
+        <button class="send" id="sendBtn">
+          إرسال <span class="kbd">Enter</span>
+        </button>
+      </div>
+    </section>
+  </div>
 
 <script>
-  // 👇 حط رابط الـ Worker تبعك هنا
+  // ✅ رابط الـWorker تبعك (كما أرسلته أنت)
   const API_URL = "https://rapid-hat-d970energy-chat.frhankh07.workers.dev";
 
-  const chat = document.getElementById("chat");
-  const msg = document.getElementById("msg");
-  const send = document.getElementById("send");
+  const STORAGE_KEY = "eng_farhan_gpt_chat_v1";
 
-  const messages = [];
+  const jokes = [
+    "أقيس الاستهلاك… لا تقلق، مش رح أحاسبك ضريبة كربون 😄",
+    "ثواني… بجمع البيانات كأني عدّاد كهربا ذكي ⚡",
+    "عم أفتّش على الهدر… الهدر متخبي زي الشاحن اللي ضايع 🔍",
+    "بجهّز الجواب… وواعدك يكون أوفر من فاتورة الصيف 😅",
+    "لحظة… بحسبها بسرعة قبل ما يشتغل المكيف على 16° 😄",
+    "قريباً… جوابك جاهز أسرع من شحن البطارية على وضع توفير الطاقة 🔋",
+  ];
 
-  function add(role, text){
-    const div = document.createElement("div");
-    div.style.margin = "10px 0";
-    div.innerHTML = `<span class="${role==='user'?'u':'a'}">${role==='user'?'أنت':'المهندس'}:</span> ${text}`;
-    chat.appendChild(div);
-    chat.scrollTop = chat.scrollHeight;
+  const $ = (id) => document.getElementById(id);
+
+  let chat = []; // {role, content, t}
+  let busy = false;
+  let waitTimer = null;
+  let waitSeconds = 0;
+  let jokeTimer = null;
+  let jokeIndex = 0;
+
+  function timeNow(){
+    return new Date().toLocaleTimeString("ar-JO", { hour:"2-digit", minute:"2-digit" });
+  }
+  function md(s){
+    return marked.parse(s, { breaks:true, mangle:false, headerIds:false });
+  }
+  function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(chat)); }
+  function load(){
+    try{ const raw = localStorage.getItem(STORAGE_KEY); if(raw) chat = JSON.parse(raw); }catch{}
+  }
+  function scrollBottom(){
+    const el = $("msgs");
+    el.scrollTop = el.scrollHeight;
   }
 
-  send.onclick = async () => {
-    const text = msg.value.trim();
-    if(!text) return;
-    msg.value = "";
+  function setStatus(text, mode="ok"){
+    $("statusText").textContent = text;
+    $("statusDot").style.background = (mode==="ok") ? "var(--ok)" : (mode==="warn") ? "var(--warn)" : "var(--muted)";
+  }
+  function setConn(ok){
+    $("connText").textContent = ok ? "متصل وجاهز" : "غير متصل (تحقق من Worker)";
+    $("connDot").style.background = ok ? "var(--ok)" : "var(--warn)";
+  }
 
-    messages.push({ role:"user", content:text });
+  function render(){
+    const box = $("msgs");
+    box.innerHTML = "";
+
+    if(chat.length === 0){
+      const w = document.createElement("div");
+      w.className = "waiting";
+      w.innerHTML = `
+        <div class="bar"><i></i></div>
+        <div class="waitText">
+          <b>أهلًا!</b> أنا <b>Eng-Farhan-GPT</b> — مهندس طاقة ذكاء اصطناعي.<br>
+          اكتب بياناتك وسأقترح حلول عملية مع حسابات تقديرية.
+        </div>
+        <div class="timer">00:00</div>
+      `;
+      box.appendChild(w);
+      return;
+    }
+
+    for(const m of chat){
+      const row = document.createElement("div");
+      row.className = "row " + (m.role === "user" ? "me" : "ai");
+
+      const ava = document.createElement("div");
+      ava.className = "ava " + (m.role === "assistant" ? "ai" : "");
+      ava.textContent = (m.role === "assistant") ? "⚡" : "أ";
+
+      const bubble = document.createElement("div");
+      bubble.className = "bubble " + (m.role === "assistant" ? "ai" : "me");
+
+      bubble.innerHTML = (m.role === "assistant")
+        ? md(m.content)
+        : m.content
+          .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
+          .replaceAll("\n","<br>");
+
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      meta.textContent = m.t || "";
+      bubble.appendChild(meta);
+
+      if(m.role === "user"){ row.appendChild(ava); row.appendChild(bubble); }
+      else { row.appendChild(bubble); row.appendChild(ava); }
+
+      box.appendChild(row);
+    }
+    scrollBottom();
+  }
+
+  function add(role, content){
+    chat.push({ role, content, t: timeNow() });
+    save();
+    render();
+  }
+
+  function showWaiting(){
+    const box = $("msgs");
+    const row = document.createElement("div");
+    row.id = "waitingRow";
+    row.className = "row ai";
+    row.innerHTML = `
+      <div class="waiting">
+        <div class="bar"><i></i></div>
+        <div class="waitText" id="waitText">
+          <b>يتم الآن التجهيز لجوابك…</b><br>
+          <span id="jokeLine">${jokes[0]}</span>
+        </div>
+        <div class="timer" id="timerBox">00:00</div>
+      </div>
+    `;
+    box.appendChild(row);
+    scrollBottom();
+
+    // timers
+    waitSeconds = 0;
+    updateTimer();
+    waitTimer = setInterval(() => {
+      waitSeconds++;
+      updateTimer();
+    }, 1000);
+
+    jokeIndex = 0;
+    jokeTimer = setInterval(() => {
+      jokeIndex = (jokeIndex + 1) % jokes.length;
+      const el = document.getElementById("jokeLine");
+      if(el) el.textContent = jokes[jokeIndex];
+    }, 2600);
+  }
+
+  function hideWaiting(){
+    const row = document.getElementById("waitingRow");
+    if(row) row.remove();
+    if(waitTimer) clearInterval(waitTimer);
+    if(jokeTimer) clearInterval(jokeTimer);
+    waitTimer = null; jokeTimer = null;
+  }
+
+  function updateTimer(){
+    const mm = String(Math.floor(waitSeconds / 60)).padStart(2,"0");
+    const ss = String(waitSeconds % 60).padStart(2,"0");
+    const el = document.getElementById("timerBox");
+    if(el) el.textContent = `${mm}:${ss}`;
+  }
+
+  function autoGrow(el){
+    el.style.height = "auto";
+    el.style.height = Math.min(el.scrollHeight, 180) + "px";
+  }
+
+  async function ping(){
+    try{
+      const r = await fetch(API_URL, {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ messages: [{ role:"user", content:"ping" }] })
+      });
+      setConn(r.ok);
+    }catch{
+      setConn(false);
+    }
+  }
+
+  async function askAI(){
+    const input = $("input");
+    const text = input.value.trim();
+    if(!text || busy) return;
+
+    input.value = "";
+    autoGrow(input);
+
     add("user", text);
 
-    const r = await fetch(API_URL, {
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({ messages })
-    });
+    busy = true;
+    $("sendBtn").setAttribute("disabled","true");
+    setStatus("يتم تجهيز الرد…", "neutral");
+    showWaiting();
 
-    const data = await r.json();
-    const reply = data.reply?.content || JSON.stringify(data);
-    messages.push({ role:"assistant", content:reply });
-    add("assistant", reply);
-  };
+    try{
+      const apiMessages = chat.map(m => ({ role: m.role, content: m.content }));
+      const r = await fetch(API_URL, {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ messages: apiMessages })
+      });
+      const data = await r.json();
+      if(!r.ok) throw new Error(data?.error || data?.message || "Request failed");
+
+      const reply = data.reply?.content ?? "لم يصل رد.";
+      hideWaiting();
+      add("assistant", reply);
+      setStatus("جاهز", "ok");
+    }catch(e){
+      hideWaiting();
+      add("assistant", `❌ حصل خطأ أثناء الاتصال:\n\n\`${String(e.message || e)}\`\n\nتأكد من Worker والـSecret.`);
+      setStatus("خطأ اتصال", "warn");
+    }finally{
+      busy = false;
+      $("sendBtn").removeAttribute("disabled");
+    }
+  }
+
+  function clearChat(){
+    chat = [];
+    save();
+    render();
+    setStatus("جاهز", "ok");
+  }
+
+  function exportChat(){
+    const payload = { exportedAt: new Date().toISOString(), chat };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type:"application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "Eng-Farhan-GPT-chat.json";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  // init
+  load();
+  render();
+  ping();
+
+  $("sendBtn").addEventListener("click", askAI);
+  $("btnClear").addEventListener("click", clearChat);
+  $("btnExport").addEventListener("click", exportChat);
+
+  $("input").addEventListener("input", (e)=>autoGrow(e.target));
+  $("input").addEventListener("keydown", (e)=>{
+    if(e.key === "Enter" && !e.shiftKey){
+      e.preventDefault();
+      askAI();
+    }
+  });
 </script>
 </body>
 </html>
