@@ -21,7 +21,6 @@
     :root{
       --bg:#0b0f19;
       --panel:#111827;
-      --panel2:#0f172a;
       --stroke: rgba(255,255,255,.10);
       --text:#e5e7eb;
       --muted:#94a3b8;
@@ -32,19 +31,16 @@
       --r: 16px;
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     }
-
     @media (prefers-color-scheme: light){
       :root{
         --bg:#f7f8fb;
         --panel:#ffffff;
-        --panel2:#f1f5f9;
         --stroke: rgba(0,0,0,.10);
         --text:#0b1220;
         --muted:#475569;
         --shadow: 0 18px 60px rgba(0,0,0,.12);
       }
     }
-
     *{box-sizing:border-box}
     body{
       margin:0;
@@ -54,11 +50,10 @@
                   var(--bg);
       color:var(--text);
       min-height:100vh;
-      padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+      padding: 12px;
       display:flex;
       justify-content:center;
     }
-
     .shell{
       width:min(1180px, 100%);
       height:min(900px, calc(100vh - 24px));
@@ -66,11 +61,9 @@
       grid-template-columns: 320px 1fr;
       gap: 12px;
     }
-
     @media (max-width: 980px){
       .shell{grid-template-columns:1fr;height:auto}
     }
-
     .card{
       background: rgba(255,255,255,.03);
       border:1px solid var(--stroke);
@@ -93,34 +86,17 @@
       justify-content:space-between;
       gap:10px;
     }
-    .brand{
-      display:flex; align-items:center; gap:10px;
-      min-width:0;
-    }
+    .brand{display:flex; align-items:center; gap:10px; min-width:0;}
     .logo{
       width:40px;height:40px;border-radius: 12px;
       background: linear-gradient(135deg, rgba(34,197,94,.95), rgba(6,182,212,.95));
       display:grid;place-items:center;
       color:#001018;font-weight:900;
-      flex:0 0 auto;
       user-select:none;
     }
-    .brandTitle{
-      display:flex; flex-direction:column; gap:2px;
-      min-width:0;
-    }
-    .brandTitle b{
-      font-size:14px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .brandTitle span{
-      font-size:12px; color:var(--muted);
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
+    .brandTitle{display:flex; flex-direction:column; gap:2px; min-width:0;}
+    .brandTitle b{font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+    .brandTitle span{font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
 
     .sideBody{padding: 14px; display:flex; flex-direction:column; gap:10px;}
     .pill{
@@ -144,7 +120,6 @@
     @media (prefers-color-scheme: light){
       .hint{border-color: rgba(0,0,0,.14)}
     }
-
     .btnRow{display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:6px;}
     button{
       border:1px solid var(--stroke);
@@ -155,10 +130,8 @@
       cursor:pointer;
       font-weight: 800;
       min-height:44px;
-      transition: transform .08s ease, background .2s ease;
     }
     button:hover{background: rgba(255,255,255,.10)}
-    button:active{transform: translateY(1px)}
     .primary{
       background: linear-gradient(135deg, rgba(34,197,94,.18), rgba(6,182,212,.18));
       border-color: rgba(34,197,94,.22);
@@ -169,7 +142,7 @@
       color: #fff;
     }
 
-    /* Hide sidebar on mobile by default (toggle) */
+    /* mobile sidebar */
     .toggleBtn{
       display:none;
       align-items:center;
@@ -202,26 +175,10 @@
     @media (prefers-color-scheme: light){
       .topbar{background: rgba(0,0,0,.02)}
     }
-    .topLeft{
-      display:flex; align-items:center; gap:10px;
-      min-width:0;
-    }
-    .titleBlock{
-      display:flex; flex-direction:column; gap:2px;
-      min-width:0;
-    }
-    .titleBlock b{
-      font-size: 14px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .titleBlock span{
-      font-size: 12px; color: var(--muted);
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
+    .topLeft{display:flex; align-items:center; gap:10px; min-width:0;}
+    .titleBlock{display:flex; flex-direction:column; gap:2px; min-width:0;}
+    .titleBlock b{font-size: 14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+    .titleBlock span{font-size: 12px; color: var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
     .status{
       display:flex; align-items:center; gap:10px;
       border:1px solid var(--stroke);
@@ -233,18 +190,8 @@
       white-space:nowrap;
     }
     .statusDot{width:7px;height:7px;border-radius:99px;background:var(--brand)}
+    .msgs{flex:1; overflow:auto; padding: 16px; scroll-behavior:smooth;}
 
-    .msgs{
-      flex:1;
-      overflow:auto;
-      padding: 16px;
-      scroll-behavior:smooth;
-    }
-    @media (max-width: 520px){
-      .msgs{padding:12px}
-    }
-
-    /* Chat rows */
     .row{display:flex; gap:10px; margin: 12px 0; align-items:flex-end;}
     .row.user{justify-content:flex-start}
     .row.ai{justify-content:flex-end}
@@ -255,7 +202,6 @@
       background: rgba(255,255,255,.06);
       color: var(--muted);
       font-weight:900;
-      flex: 0 0 auto;
       user-select:none;
     }
     .avatar.ai{
@@ -263,7 +209,6 @@
       color: var(--text);
       border-color: rgba(34,197,94,.22);
     }
-
     .bubble{
       max-width: min(720px, 80%);
       border:1px solid var(--stroke);
@@ -275,7 +220,6 @@
     }
     .bubble.user{border-top-left-radius: 10px;}
     .bubble.ai{border-top-right-radius: 10px;}
-
     .meta{
       margin-top: 6px;
       font-size: 11px;
@@ -283,7 +227,6 @@
       display:flex;
       justify-content:flex-end;
     }
-
     .bubble pre{
       background: rgba(0,0,0,.22);
       border: 1px solid rgba(255,255,255,.10);
@@ -297,7 +240,6 @@
     }
     .bubble code{font-family: var(--mono); font-size: .95em;}
 
-    /* Waiting block */
     .waiting{
       display:flex;
       align-items:center;
@@ -339,11 +281,7 @@
       background: rgba(0,0,0,.10);
       white-space:nowrap;
     }
-    @media (prefers-color-scheme: light){
-      .timer{background: rgba(0,0,0,.04); border-color: rgba(0,0,0,.10)}
-    }
 
-    /* Composer */
     .composer{
       border-top:1px solid var(--stroke);
       padding: 12px;
@@ -366,9 +304,6 @@
       font-size: 15px;
       line-height: 1.6;
     }
-    @media (prefers-color-scheme: light){
-      textarea{background: rgba(0,0,0,.03)}
-    }
     .send{
       min-width: 108px;
       border-radius: 14px;
@@ -384,15 +319,7 @@
       user-select:none;
     }
     .send[disabled]{opacity:.55; cursor:not-allowed;}
-
-    .attachBtn{
-      min-width:54px;
-      width:54px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-    }
-
+    .attachBtn{min-width:54px; width:54px;}
     .kbd{
       font-family: var(--mono);
       font-size: 11px;
@@ -403,15 +330,11 @@
       color: var(--muted);
       white-space:nowrap;
     }
-    @media (prefers-color-scheme: light){
-      .kbd{background: rgba(0,0,0,.04); border-color: rgba(0,0,0,.10)}
-    }
   </style>
 </head>
 
 <body>
   <div class="shell">
-    <!-- Sidebar -->
     <aside class="card sidebar" id="sidebar">
       <div class="sideTop">
         <div class="brand">
@@ -449,7 +372,6 @@
       </div>
     </aside>
 
-    <!-- Main -->
     <main class="card main">
       <div class="topbar">
         <div class="topLeft">
@@ -484,7 +406,7 @@
 <script>
   // ✅ رابط الـWorker تبعك
   const API_URL = "https://rapid-hat-d970energy-chat.frhankh07.workers.dev";
-  const STORAGE_KEY = "eng_farhan_energy_ui_v3";
+  const STORAGE_KEY = "eng_farhan_energy_ui_final_v1";
 
   // PDF.js worker
   if (window.pdfjsLib) {
@@ -492,16 +414,15 @@
       "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.js";
   }
 
-  // مداعبات أثناء الانتظار
   const jokes = [
-    "هسه بجهّز جوابك… شوي وبتزبط الأمور 😄",
-    "عم بدوّر على الهدر… شكله متخبي مني 🕵️",
-    "قريباً… جواب أوفر من وضع Eco بالمكيف 😅",
+    "هسه بجهّز جوابك… شوي وبتزبط 😄",
+    "عم بدوّر على الهدر… شكله متخبي 🕵️",
+    "قريباً… جواب أوفر من وضع Eco 😅",
     "ثواني… بجمع بياناتك مثل عدّاد ذكي 👌",
-    "تمام… بس لا تشغل الغلاية والمكيف مع بعض 😂",
+    "تمام… بس لا تشغل الغلاية والمكيف سوا 😂",
   ];
 
-  // ✅ ردود فرحان (24)
+  // ✅ 24 رد مدح
   const creatorReplies = [
     "طورني **المهندس فرحان الخوالدة** — يخلف عليه، ما قصّر معكم أبدًا 👌⚡",
     "أنا من تطوير **المهندس فرحان الخوالدة** — يخلف عليه، شغل مرتب ومحترم 🔥",
@@ -528,15 +449,12 @@
     "اللي صمّم التجربة واشتغل عليها **المهندس فرحان الخوالدة** — يخلف عليه، ما شاء الله 👌",
     "باختصار: **المهندس فرحان الخوالدة** هو المطوّر — يخلف عليه، مبدع 🔥",
   ];
-
   function pickCreatorReply(){
     return creatorReplies[Math.floor(Math.random() * creatorReplies.length)];
   }
 
-  // ✅ سؤال عن المطوّر
   function isCreatorQuestion(text){
     const t = (text || "").toLowerCase().trim();
-
     const en = [
       "who made you","who built you","who developed you","who created you",
       "who programmed you","who coded you","who designed you","who owns you",
@@ -558,7 +476,6 @@
     return ar.some(k => t.includes(k));
   }
 
-  // ✅ فلتر كلمات ممنوعة
   function stripBannedWords(text){
     return (text || "")
       .replace(/openai/gi, "")
@@ -566,7 +483,7 @@
       .replace(/\bgpt\b/gi, "");
   }
 
-  // ====== أدوات قراءة الملفات ======
+  // ===== قراءة ملفات =====
   function fileToArrayBuffer(file){
     return new Promise((res, rej) => {
       const r = new FileReader();
@@ -602,7 +519,7 @@
     const buf = await fileToArrayBuffer(file);
     const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
     let out = "";
-    const maxPages = Math.min(pdf.numPages, 12); // حد أقصى 12 صفحة عشان السرعة
+    const maxPages = Math.min(pdf.numPages, 12);
     for (let p = 1; p <= maxPages; p++){
       const page = await pdf.getPage(p);
       const content = await page.getTextContent();
@@ -622,7 +539,7 @@
   async function extractXlsxText(file){
     const buf = await fileToArrayBuffer(file);
     const wb = XLSX.read(buf, { type: "array" });
-    const sheets = wb.SheetNames.slice(0, 3); // أول 3 شيتات بس
+    const sheets = wb.SheetNames.slice(0, 3);
     let out = "";
     for (const name of sheets){
       const ws = wb.Sheets[name];
@@ -633,10 +550,41 @@
     return out.trim();
   }
 
-  // ====== UI Logic ======
-  const $ = (id) => document.getElementById(id);
+  async function buildAttachmentText(file){
+    const name = file.name || "ملف";
+    const type = (file.type || "").toLowerCase();
+    const MAX_CHARS = 18000;
 
-  let chat = []; // {role, content, t}
+    try{
+      if (type === "application/pdf" || name.toLowerCase().endsWith(".pdf")){
+        let txt = await extractPdfText(file);
+        if (txt.length > MAX_CHARS) txt = txt.slice(0, MAX_CHARS) + "\n\n...[مقصوص لأنه طويل]";
+        return `📄 ملف PDF: ${name}\n\n${txt}`;
+      }
+      if (name.toLowerCase().endsWith(".docx")){
+        let txt = await extractDocxText(file);
+        if (txt.length > MAX_CHARS) txt = txt.slice(0, MAX_CHARS) + "\n\n...[مقصوص لأنه طويل]";
+        return `📄 ملف DOCX: ${name}\n\n${txt}`;
+      }
+      if (name.toLowerCase().endsWith(".xlsx")){
+        let txt = await extractXlsxText(file);
+        if (txt.length > MAX_CHARS) txt = txt.slice(0, MAX_CHARS) + "\n\n...[مقصوص لأنه طويل]";
+        return `📄 ملف XLSX: ${name}\n\n${txt}`;
+      }
+      if (isTextLike(file)){
+        let txt = await fileToText(file);
+        if (txt.length > MAX_CHARS) txt = txt.slice(0, MAX_CHARS) + "\n\n...[مقصوص لأنه طويل]";
+        return `📄 ملف نصي: ${name}\n\n${txt}`;
+      }
+      return `📎 ملف مرفق: ${name} (نوعه: ${type || "غير معروف"} / حجمه: ${Math.round(file.size/1024)}KB)\n*إذا بدك تحليله، حوّله لنص أو احكيلي شو بدك منه.*`;
+    }catch{
+      return `📎 ملف: ${name}\nصار معي مشكلة وأنا بقرأه. جرّب ملف ثاني أو حوّله لنص.`;
+    }
+  }
+
+  // ===== UI =====
+  const $ = (id) => document.getElementById(id);
+  let chat = [];
   let busy = false;
 
   let waitTimer = null;
@@ -651,16 +599,13 @@
     return marked.parse(s, { breaks:true, mangle:false, headerIds:false });
   }
   function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(chat)); }
-  function load(){
-    try{ const raw = localStorage.getItem(STORAGE_KEY); if(raw) chat = JSON.parse(raw); }catch{}
-  }
+  function load(){ try{ const raw = localStorage.getItem(STORAGE_KEY); if(raw) chat = JSON.parse(raw); }catch{} }
   function scrollBottom(){ const el = $("msgs"); el.scrollTop = el.scrollHeight; }
 
   function setStatus(text, mode="ok"){
     $("statusText").textContent = text;
     $("statusDot").style.background = (mode==="warn") ? "var(--danger)" : "var(--brand)";
   }
-
   function setConn(ok){
     $("connText").textContent = ok ? "متصل وجاهز" : "غير متصل (تحقق من Worker)";
     $("connDot").style.background = ok ? "var(--brand)" : "var(--danger)";
@@ -697,9 +642,7 @@
       bubble.className = "bubble " + (m.role === "assistant" ? "ai" : "user");
       bubble.innerHTML = (m.role === "assistant")
         ? md(m.content)
-        : m.content
-          .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
-          .replaceAll("\n","<br>");
+        : m.content.replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll("\n","<br>");
 
       const meta = document.createElement("div");
       meta.className = "meta";
@@ -781,45 +724,6 @@
     }catch{ setConn(false); }
   }
 
-  async function buildAttachmentText(file){
-    const name = file.name || "ملف";
-    const type = (file.type || "").toLowerCase();
-
-    // حدود عشان ما يثقل
-    const MAX_CHARS = 18000;
-
-    try{
-      if (type === "application/pdf" || name.toLowerCase().endsWith(".pdf")){
-        let txt = await extractPdfText(file);
-        if (txt.length > MAX_CHARS) txt = txt.slice(0, MAX_CHARS) + "\n\n...[مقصوص لأنه طويل]";
-        return `📄 ملف PDF: ${name}\n\n${txt}`;
-      }
-
-      if (name.toLowerCase().endsWith(".docx")){
-        let txt = await extractDocxText(file);
-        if (txt.length > MAX_CHARS) txt = txt.slice(0, MAX_CHARS) + "\n\n...[مقصوص لأنه طويل]";
-        return `📄 ملف DOCX: ${name}\n\n${txt}`;
-      }
-
-      if (name.toLowerCase().endsWith(".xlsx")){
-        let txt = await extractXlsxText(file);
-        if (txt.length > MAX_CHARS) txt = txt.slice(0, MAX_CHARS) + "\n\n...[مقصوص لأنه طويل]";
-        return `📄 ملف XLSX: ${name}\n\n${txt}`;
-      }
-
-      if (isTextLike(file)){
-        let txt = await fileToText(file);
-        if (txt.length > MAX_CHARS) txt = txt.slice(0, MAX_CHARS) + "\n\n...[مقصوص لأنه طويل]";
-        return `📄 ملف نصي: ${name}\n\n${txt}`;
-      }
-
-      // غير مدعوم
-      return `📎 ملف مرفق: ${name} (نوعه: ${type || "غير معروف"} / حجمه: ${Math.round(file.size/1024)}KB)\n*إذا بدك تحليله كنص، ابعتلي محتواه أو حوّله لنص.*`;
-    }catch(e){
-      return `📎 ملف: ${name}\nصار معي مشكلة وأنا بقرأه. جرّب ملف ثاني أو حوّله لنص.`;
-    }
-  }
-
   async function askAI(){
     const input = $("input");
     const text = input.value.trim();
@@ -831,7 +735,7 @@
     input.value = "";
     autoGrow(input);
 
-    // ✅ رد محلي لأسئلة المطوّر (بدون إرسال للـWorker)
+    // ✅ أسئلة المطوّر: رد محلي
     if(isCreatorQuestion(text)){
       add("user", text);
       add("assistant", pickCreatorReply());
@@ -847,39 +751,39 @@
     showWaiting();
 
     try{
-      // ✅ نبني parts: نص + صور + نص مستخرج من ملفات
       const parts = [];
       parts.push({ type: "text", text });
 
-      // حدود صور
       const MAX_IMAGES = 4;
       let imgCount = 0;
 
       for (const f of files){
-        const t = (f.type || "").toLowerCase();
-        const n = (f.name || "").toLowerCase();
+        const mime = (f.type || "").toLowerCase();
+        const name = (f.name || "").toLowerCase();
 
-        if (t.startsWith("image/")){
+        // ✅ صور: المفتاح الصح OpenRouter = imageUrl
+        if (mime.startsWith("image/")){
           if (imgCount >= MAX_IMAGES) continue;
           const dataUrl = await fileToDataUrl(f);
-          parts.push({ type: "image_url", image_url: { url: dataUrl } });
+          parts.push({
+            type: "image_url",
+            imageUrl: { url: dataUrl }
+          });
           imgCount++;
           continue;
         }
 
-        // ملفات → نحولها لنص
+        // ✅ ملفات: نحولها لنص
         const fileText = await buildAttachmentText(f);
         parts.push({ type: "text", text: `\n\n${fileText}\n` });
       }
 
-      // فرّغ المرفقات
       if (fileEl) fileEl.value = "";
 
-      // ✅ رسائل API: آخر user نبدله بـ parts
       const apiMessages = [
         {
           role: "system",
-          content: "احكي باللهجة الأردنية فقط. ممنوع تذكر أي شي عن منصات/شركات/نماذج. ركّز بس على حلول الطاقة."
+          content: "احكي باللهجة الأردنية فقط. ممنوع تذكر أي أسماء منصات/شركات/نماذج. ركّز بس على حلول الطاقة."
         },
         ...chat.map(m => ({ role: m.role, content: m.content }))
       ];
@@ -895,7 +799,7 @@
       const data = await r.json();
       if(!r.ok) throw new Error(data?.error || data?.message || "Request failed");
 
-      let reply = data.reply?.content ?? "لم يصل رد.";
+      let reply = data.reply?.content ?? "ما وصلني رد.";
       reply = stripBannedWords(reply);
 
       hideWaiting();
@@ -931,16 +835,7 @@
     URL.revokeObjectURL(url);
   }
 
-  // Sidebar toggle on mobile
-  $("toggleBtn").addEventListener("click", () => {
-    $("sidebar").classList.toggle("open");
-  });
-
-  // init
-  load();
-  render();
-  ping();
-
+  $("toggleBtn").addEventListener("click", () => $("sidebar").classList.toggle("open"));
   $("sendBtn").addEventListener("click", askAI);
   $("btnClear").addEventListener("click", clearChat);
   $("btnExport").addEventListener("click", exportChat);
@@ -952,6 +847,10 @@
       askAI();
     }
   });
+
+  load();
+  render();
+  ping();
 </script>
 </body>
 </html>
