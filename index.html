@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>Eng-Farhan-GPT</title>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
@@ -45,20 +45,24 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      padding:18px;
+      padding: max(14px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
     }
+
     .app{
-      width:min(1060px, 100%);
-      height:min(820px, calc(100vh - 36px));
+      width:min(1100px, 100%);
+      height:min(860px, calc(100vh - 28px));
       display:grid;
       grid-template-columns: 360px 1fr;
       gap:14px;
     }
-    @media (max-width: 940px){
+
+    /* Mobile: stack */
+    @media (max-width: 980px){
       .app{grid-template-columns:1fr;height:auto}
       .sidebar{order:2}
-      .chat{order:1;min-height:72vh}
+      .chat{order:1;min-height:75vh}
     }
+
     .card{
       background:var(--card);
       border:1px solid var(--stroke);
@@ -82,6 +86,7 @@
       color:#001018;font-weight:900;
       box-shadow: 0 14px 34px rgba(96,165,250,.20);
       flex:0 0 auto;
+      user-select:none;
     }
     .brand h1{margin:0;font-size:16px;line-height:1.2}
     .brand p{margin:4px 0 0;font-size:12px;color:var(--muted)}
@@ -114,13 +119,14 @@
     .btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
     button{
       border:0;border-radius:16px;
-      padding:10px 12px;
+      padding:12px 12px; /* bigger tap targets */
       cursor:pointer;
       font-weight:800;
       background:var(--card2);
       color:var(--txt);
       border:1px solid var(--stroke);
       transition: transform .08s ease, background .2s ease;
+      min-height: 44px;
     }
     button:hover{background:rgba(255,255,255,.12)}
     button:active{transform: translateY(1px)}
@@ -133,9 +139,7 @@
       border-color: rgba(255,107,107,.35);
       color:#fff;
     }
-    .small{
-      font-size:12px;color:var(--muted);line-height:1.55
-    }
+    .small{font-size:12px;color:var(--muted);line-height:1.55}
     .kbd{
       font-family:var(--mono);
       font-size:11px;
@@ -169,6 +173,9 @@
     }
     .status .dot{width:7px;height:7px;box-shadow:none}
     .msgs{padding:16px;overflow:auto;flex:1;scroll-behavior:smooth}
+    @media (max-width: 520px){
+      .msgs{padding:12px}
+    }
 
     .row{display:flex;gap:10px;align-items:flex-end;margin:10px 0}
     .row.me{justify-content:flex-start}
@@ -196,6 +203,11 @@
       border:1px solid var(--stroke);
       background:var(--card2);
       position:relative;
+      word-break: break-word;
+    }
+    @media (max-width: 520px){
+      .bubble{max-width: 84%}
+      .ava{width:34px;height:34px;border-radius:13px}
     }
     .bubble.me{border-top-left-radius:8px}
     .bubble.ai{
@@ -211,7 +223,6 @@
       justify-content:flex-end;
       gap:10px;
     }
-
     .bubble pre{
       background: rgba(0,0,0,.22);
       border: 1px solid rgba(255,255,255,.10);
@@ -236,6 +247,10 @@
       padding: 12px;
       color: var(--muted);
       max-width: min(660px, 78%);
+    }
+    @media (max-width: 520px){
+      .waiting{max-width: 84%}
+      .bar{width:120px}
     }
     .bar{
       width: 160px;
@@ -288,14 +303,14 @@
       resize:none;
       width:100%;
       min-height:56px;
-      max-height: 180px;
+      max-height: 190px;
       padding:12px 12px;
       border-radius: 18px;
       border:1px solid rgba(255,255,255,.14);
       background: rgba(0,0,0,.10);
       color: var(--txt);
       outline:none;
-      font-size: 14px;
+      font-size: 15px; /* better for mobile */
       line-height: 1.55;
     }
     @media (prefers-color-scheme: light){
@@ -309,6 +324,11 @@
       border-color: rgba(110,231,255,.35);
       display:flex;align-items:center;gap:10px;
       white-space:nowrap;
+      min-width: 120px;
+      justify-content:center;
+    }
+    @media (max-width: 520px){
+      .send{min-width: 96px}
     }
     .send[disabled]{
       opacity:.55;
@@ -318,6 +338,7 @@
     a{color:var(--accent)}
   </style>
 </head>
+
 <body>
   <div class="app">
     <section class="card sidebar">
@@ -325,7 +346,7 @@
         <div class="logo">⚡</div>
         <div>
           <h1>Eng-Farhan-GPT</h1>
-          <p>Energy Engineer AI · Global-Style Chat</p>
+          <p>Energy Engineer AI · Responsive Web Chat</p>
         </div>
       </div>
 
@@ -337,7 +358,7 @@
 
         <div class="hint">
           <b>لنتائج أدق:</b><br>
-          اذكر: البلد/التعرفة، نوع المبنى، المساحة، الأجهزة الثقيلة، ساعات التشغيل، وأرقام آخر فاتورتين.
+          اذكر: البلد/التعرفة، نوع المبنى، المساحة، الأجهزة الثقيلة، ساعات التشغيل، وآخر فاتورتين.
         </div>
 
         <div class="btns">
@@ -356,7 +377,7 @@
       <div class="head">
         <div class="t">
           <h2>استشارة طاقة — Eng-Farhan-GPT</h2>
-          <span id="subtitle">اسألني عن تخفيض الفاتورة، التكييف، العزل، أو الطاقة الشمسية.</span>
+          <span>اسألني عن تخفيض الفاتورة، التكييف، العزل، أو الطاقة الشمسية.</span>
         </div>
         <div class="status">
           <span class="dot" id="statusDot"></span>
@@ -376,11 +397,12 @@
   </div>
 
 <script>
-  // ✅ رابط الـWorker تبعك (كما أرسلته أنت)
+  // ✅ رابط الـWorker تبعك
   const API_URL = "https://rapid-hat-d970energy-chat.frhankh07.workers.dev";
 
-  const STORAGE_KEY = "eng_farhan_gpt_chat_v1";
+  const STORAGE_KEY = "eng_farhan_gpt_chat_v2";
 
+  // مداعبات أثناء الانتظار
   const jokes = [
     "أقيس الاستهلاك… لا تقلق، مش رح أحاسبك ضريبة كربون 😄",
     "ثواني… بجمع البيانات كأني عدّاد كهربا ذكي ⚡",
@@ -390,10 +412,17 @@
     "قريباً… جوابك جاهز أسرع من شحن البطارية على وضع توفير الطاقة 🔋",
   ];
 
-  const $ = (id) => document.getElementById(id);
+  // إذا سأل: مين عملك/طورك؟
+  const creatorTriggers = [
+    "مين عملك", "مين طورك", "من عملك", "من طورك", "مين صمّمك", "مين صممك",
+    "who made you", "who built you", "who developed you", "who created you"
+  ];
+  const creatorReply = "تم تطويري بواسطة **المهندس فرحان الخوالدة**.";
 
+  const $ = (id) => document.getElementById(id);
   let chat = []; // {role, content, t}
   let busy = false;
+
   let waitTimer = null;
   let waitSeconds = 0;
   let jokeTimer = null;
@@ -413,7 +442,6 @@
     const el = $("msgs");
     el.scrollTop = el.scrollHeight;
   }
-
   function setStatus(text, mode="ok"){
     $("statusText").textContent = text;
     $("statusDot").style.background = (mode==="ok") ? "var(--ok)" : (mode==="warn") ? "var(--warn)" : "var(--muted)";
@@ -496,13 +524,9 @@
     box.appendChild(row);
     scrollBottom();
 
-    // timers
     waitSeconds = 0;
     updateTimer();
-    waitTimer = setInterval(() => {
-      waitSeconds++;
-      updateTimer();
-    }, 1000);
+    waitTimer = setInterval(() => { waitSeconds++; updateTimer(); }, 1000);
 
     jokeIndex = 0;
     jokeTimer = setInterval(() => {
@@ -529,7 +553,12 @@
 
   function autoGrow(el){
     el.style.height = "auto";
-    el.style.height = Math.min(el.scrollHeight, 180) + "px";
+    el.style.height = Math.min(el.scrollHeight, 190) + "px";
+  }
+
+  function looksLikeCreatorQuestion(text){
+    const t = text.toLowerCase();
+    return creatorTriggers.some(k => t.includes(k));
   }
 
   async function ping(){
@@ -540,9 +569,7 @@
         body: JSON.stringify({ messages: [{ role:"user", content:"ping" }] })
       });
       setConn(r.ok);
-    }catch{
-      setConn(false);
-    }
+    }catch{ setConn(false); }
   }
 
   async function askAI(){
@@ -552,6 +579,13 @@
 
     input.value = "";
     autoGrow(input);
+
+    // ✅ رد محلي إذا سأل مين طورك/عملك (بدون ما نرسل للـAI)
+    if(looksLikeCreatorQuestion(text)){
+      add("user", text);
+      add("assistant", creatorReply);
+      return;
+    }
 
     add("user", text);
 
