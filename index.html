@@ -3,8 +3,19 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Eng-Farhan-GPT</title>
+  <title>Eng-Farhan — Energy Assistant</title>
+
+  <!-- Markdown -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <!-- PDF.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.js"></script>
+
+  <!-- Mammoth (DOCX) -->
+  <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
+
+  <!-- SheetJS (XLSX) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <style>
     :root{
@@ -368,8 +379,19 @@
       align-items:center;
       justify-content:center;
       gap:8px;
+      padding: 11px 12px;
+      cursor:pointer;
+      user-select:none;
     }
     .send[disabled]{opacity:.55; cursor:not-allowed;}
+
+    .attachBtn{
+      min-width:54px;
+      width:54px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
 
     .kbd{
       font-family: var(--mono);
@@ -395,8 +417,8 @@
         <div class="brand">
           <div class="logo">⚡</div>
           <div class="brandTitle">
-            <b>Eng-Farhan-GPT</b>
-            <span>Energy Engineer AI</span>
+            <b>Eng-Farhan</b>
+            <span>Energy Engineer Assistant</span>
           </div>
         </div>
       </div>
@@ -420,6 +442,10 @@
         <div style="font-size:12px;color:var(--muted);line-height:1.55;margin-top:4px">
           إرسال: <span class="kbd">Enter</span> · سطر جديد: <span class="kbd">Shift</span> + <span class="kbd">Enter</span>
         </div>
+
+        <div style="font-size:12px;color:var(--muted);line-height:1.55;margin-top:6px">
+          مرفقات: صور / PDF / DOCX / XLSX / TXT
+        </div>
       </div>
     </aside>
 
@@ -429,8 +455,8 @@
         <div class="topLeft">
           <div class="toggleBtn" id="toggleBtn">☰</div>
           <div class="titleBlock">
-            <b>Eng-Farhan-GPT</b>
-            <span id="subtitle">استشارة طاقة — تصميم عالمي شبيه ChatGPT</span>
+            <b>Eng-Farhan</b>
+            <span id="subtitle">استشارة طاقة — تصميم عالمي فاخر وسلس</span>
           </div>
         </div>
         <div class="status">
@@ -443,7 +469,14 @@
 
       <div class="composer">
         <textarea id="input" placeholder="اكتب سؤالك… مثال: فاتورتي 120 دينار، بيت 140م²، مكيفين 1.5 طن… شو الحل؟"></textarea>
-        <button class="send" id="sendBtn">إرسال <span class="kbd">Enter</span></button>
+
+        <div style="display:flex;gap:10px;align-items:stretch">
+          <label class="send attachBtn" for="fileInput" title="ارفع مرفقات">📎</label>
+          <input id="fileInput" type="file" multiple
+                 accept="image/*,.pdf,.docx,.xlsx,.txt,.csv,.json,.md"
+                 style="display:none" />
+          <button class="send" id="sendBtn">إرسال <span class="kbd">Enter</span></button>
+        </div>
       </div>
     </main>
   </div>
@@ -451,19 +484,24 @@
 <script>
   // ✅ رابط الـWorker تبعك
   const API_URL = "https://rapid-hat-d970energy-chat.frhankh07.workers.dev";
-  const STORAGE_KEY = "eng_farhan_gpt_global_ui_v2";
+  const STORAGE_KEY = "eng_farhan_energy_ui_v3";
+
+  // PDF.js worker
+  if (window.pdfjsLib) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.js";
+  }
 
   // مداعبات أثناء الانتظار
   const jokes = [
-    "يتم الآن التجهيز لجوابك… خليك معي شوي 😄",
-    "بحسب الاستهلاك… بدون ما نرفع التعرفة! ⚡",
-    "عم أدور على الهدر… شكله لابس طاقية الإخفاء 🕵️",
-    "قريباً… جوابك أوفر من وضع Eco بالمكيف 😅",
-    "ثواني… بجمع البيانات مثل عدّاد ذكي 👌",
-    "جاهزين… بس لا تشغل الغلاية والمكيف مع بعض 😄",
+    "هسه بجهّز جوابك… شوي وبتزبط الأمور 😄",
+    "عم بدوّر على الهدر… شكله متخبي مني 🕵️",
+    "قريباً… جواب أوفر من وضع Eco بالمكيف 😅",
+    "ثواني… بجمع بياناتك مثل عدّاد ذكي 👌",
+    "تمام… بس لا تشغل الغلاية والمكيف مع بعض 😂",
   ];
 
-  // ✅ 24 رد مدح (يتغير عشوائيًا)
+  // ✅ ردود فرحان (24)
   const creatorReplies = [
     "طورني **المهندس فرحان الخوالدة** — يخلف عليه، ما قصّر معكم أبدًا 👌⚡",
     "أنا من تطوير **المهندس فرحان الخوالدة** — يخلف عليه، شغل مرتب ومحترم 🔥",
@@ -495,11 +533,10 @@
     return creatorReplies[Math.floor(Math.random() * creatorReplies.length)];
   }
 
-  // ✅ 40+ كلمة/عبارة مفتاحية للسؤال (AR + EN)
+  // ✅ سؤال عن المطوّر
   function isCreatorQuestion(text){
     const t = (text || "").toLowerCase().trim();
 
-    // EN triggers
     const en = [
       "who made you","who built you","who developed you","who created you",
       "who programmed you","who coded you","who designed you","who owns you",
@@ -510,21 +547,93 @@
     ];
     if (en.some(k => t.includes(k))) return true;
 
-    // AR triggers (40+)
     const ar = [
       "مين عملك","مين طورك","مين طوّرك","مين مطورك","مين مطوّرك","مين برمجك","مين مبرمجك",
-      "مين صممك","مين صمّمك","مين مصممك","مين بناك","مين بنىك","مين أسسك","مين اسسك",
-      "مين أنشأك","مين انشأك","مين سواك","مين سوّاك","مين صنعك","مين اللي عملك",
-      "مين اللي طورك","مين اللي طوّرك","مين اللي برمجك","مين اللي صممك","مين اللي صمّمك",
-      "مين اللي بناك","مين اللي أنشأك","مين اللي انشأك","مين اللي سواك","مين اللي سوّاك",
-      "مين اللي صنعك","من عملك","من طورك","من طوّرك","من برمجك","من صممك","من صمّمك",
-      "من بناك","من أنشأك","من انشأك","صاحبك مين","مين صاحبك","مين مالكك","مين مالكك",
-      "مين صاحب المشروع","مين صاحب الفكرة","مين مؤسس المشروع","مين المؤسس","مين منشئك",
-      "مين صانعك","مين كتبك","مين سوّى هذا","مين سوا هذا","مين صنع هذا"
+      "مين صممك","مين صمّمك","مين مصممك","مين بناك","مين أسسك","مين انشأك","مين أنشأك",
+      "مين سواك","مين سوّاك","مين صنعك","مين اللي عملك",
+      "من عملك","من طورك","من برمجك","من صممك","من بناك","من أنشأك",
+      "صاحبك مين","مين صاحبك","مين صاحب المشروع","مين صاحب الفكرة","مين مؤسس المشروع",
+      "مين المؤسس","مين منشئك","مين صانعك","مين كتبك"
     ];
     return ar.some(k => t.includes(k));
   }
 
+  // ✅ فلتر كلمات ممنوعة
+  function stripBannedWords(text){
+    return (text || "")
+      .replace(/openai/gi, "")
+      .replace(/chat\s*gpt/gi, "")
+      .replace(/\bgpt\b/gi, "");
+  }
+
+  // ====== أدوات قراءة الملفات ======
+  function fileToArrayBuffer(file){
+    return new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => res(r.result);
+      r.onerror = rej;
+      r.readAsArrayBuffer(file);
+    });
+  }
+  function fileToDataUrl(file){
+    return new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => res(r.result);
+      r.onerror = rej;
+      r.readAsDataURL(file);
+    });
+  }
+  function fileToText(file){
+    return new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => res(r.result);
+      r.onerror = rej;
+      r.readAsText(file, "utf-8");
+    });
+  }
+  function isTextLike(file){
+    const n = (file.name || "").toLowerCase();
+    const t = (file.type || "").toLowerCase();
+    if (t.startsWith("text/")) return true;
+    return n.endsWith(".txt") || n.endsWith(".csv") || n.endsWith(".json") || n.endsWith(".md");
+  }
+
+  async function extractPdfText(file){
+    const buf = await fileToArrayBuffer(file);
+    const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+    let out = "";
+    const maxPages = Math.min(pdf.numPages, 12); // حد أقصى 12 صفحة عشان السرعة
+    for (let p = 1; p <= maxPages; p++){
+      const page = await pdf.getPage(p);
+      const content = await page.getTextContent();
+      const strings = content.items.map(it => it.str);
+      out += `\n\n--- صفحة ${p} ---\n` + strings.join(" ");
+    }
+    if (pdf.numPages > maxPages) out += `\n\n...[مقصوص، الملف فيه صفحات أكثر (${pdf.numPages})]`;
+    return out.trim();
+  }
+
+  async function extractDocxText(file){
+    const buf = await fileToArrayBuffer(file);
+    const result = await mammoth.extractRawText({ arrayBuffer: buf });
+    return (result.value || "").trim();
+  }
+
+  async function extractXlsxText(file){
+    const buf = await fileToArrayBuffer(file);
+    const wb = XLSX.read(buf, { type: "array" });
+    const sheets = wb.SheetNames.slice(0, 3); // أول 3 شيتات بس
+    let out = "";
+    for (const name of sheets){
+      const ws = wb.Sheets[name];
+      const csv = XLSX.utils.sheet_to_csv(ws, { FS: ",", RS: "\n" });
+      out += `\n\n--- Sheet: ${name} ---\n` + csv;
+    }
+    if (wb.SheetNames.length > 3) out += `\n\n...[مقصوص، فيه شيتات أكثر (${wb.SheetNames.length})]`;
+    return out.trim();
+  }
+
+  // ====== UI Logic ======
   const $ = (id) => document.getElementById(id);
 
   let chat = []; // {role, content, t}
@@ -567,8 +676,8 @@
       w.innerHTML = `
         <div class="bar"><i></i></div>
         <div>
-          <b style="color:var(--text)">أهلًا!</b> أنا <b style="color:var(--text)">Eng-Farhan-GPT</b> — مهندس طاقة ذكاء اصطناعي.<br>
-          اكتب بياناتك وسأقترح حلول عملية مع حسابات تقديرية.
+          <b style="color:var(--text)">يعطيك العافية!</b> أنا <b style="color:var(--text)">Eng-Farhan</b> — مساعد طاقة.<br>
+          اكتب معلوماتك وبعطيك حلول عملية وحسبة تقريبية.
         </div>
         <div class="timer">00:00</div>
       `;
@@ -620,7 +729,7 @@
       <div class="waiting">
         <div class="bar"><i></i></div>
         <div>
-          <b style="color:var(--text)">يتم الآن التجهيز لجوابك…</b><br>
+          <b style="color:var(--text)">هسه بجهّز جوابك…</b><br>
           <span id="jokeLine">${jokes[0]}</span>
         </div>
         <div class="timer" id="timerBox">00:00</div>
@@ -672,18 +781,61 @@
     }catch{ setConn(false); }
   }
 
+  async function buildAttachmentText(file){
+    const name = file.name || "ملف";
+    const type = (file.type || "").toLowerCase();
+
+    // حدود عشان ما يثقل
+    const MAX_CHARS = 18000;
+
+    try{
+      if (type === "application/pdf" || name.toLowerCase().endsWith(".pdf")){
+        let txt = await extractPdfText(file);
+        if (txt.length > MAX_CHARS) txt = txt.slice(0, MAX_CHARS) + "\n\n...[مقصوص لأنه طويل]";
+        return `📄 ملف PDF: ${name}\n\n${txt}`;
+      }
+
+      if (name.toLowerCase().endsWith(".docx")){
+        let txt = await extractDocxText(file);
+        if (txt.length > MAX_CHARS) txt = txt.slice(0, MAX_CHARS) + "\n\n...[مقصوص لأنه طويل]";
+        return `📄 ملف DOCX: ${name}\n\n${txt}`;
+      }
+
+      if (name.toLowerCase().endsWith(".xlsx")){
+        let txt = await extractXlsxText(file);
+        if (txt.length > MAX_CHARS) txt = txt.slice(0, MAX_CHARS) + "\n\n...[مقصوص لأنه طويل]";
+        return `📄 ملف XLSX: ${name}\n\n${txt}`;
+      }
+
+      if (isTextLike(file)){
+        let txt = await fileToText(file);
+        if (txt.length > MAX_CHARS) txt = txt.slice(0, MAX_CHARS) + "\n\n...[مقصوص لأنه طويل]";
+        return `📄 ملف نصي: ${name}\n\n${txt}`;
+      }
+
+      // غير مدعوم
+      return `📎 ملف مرفق: ${name} (نوعه: ${type || "غير معروف"} / حجمه: ${Math.round(file.size/1024)}KB)\n*إذا بدك تحليله كنص، ابعتلي محتواه أو حوّله لنص.*`;
+    }catch(e){
+      return `📎 ملف: ${name}\nصار معي مشكلة وأنا بقرأه. جرّب ملف ثاني أو حوّله لنص.`;
+    }
+  }
+
   async function askAI(){
     const input = $("input");
     const text = input.value.trim();
     if(!text || busy) return;
 
+    const fileEl = $("fileInput");
+    const files = Array.from(fileEl?.files || []);
+
     input.value = "";
     autoGrow(input);
 
-    // ✅ رد محلي على أسئلة المطوّر (بدون ما نرسل للـAI)
+    // ✅ رد محلي لأسئلة المطوّر (بدون إرسال للـWorker)
     if(isCreatorQuestion(text)){
       add("user", text);
       add("assistant", pickCreatorReply());
+      if (fileEl) fileEl.value = "";
       return;
     }
 
@@ -695,22 +847,63 @@
     showWaiting();
 
     try{
-      const apiMessages = chat.map(m => ({ role: m.role, content: m.content }));
+      // ✅ نبني parts: نص + صور + نص مستخرج من ملفات
+      const parts = [];
+      parts.push({ type: "text", text });
+
+      // حدود صور
+      const MAX_IMAGES = 4;
+      let imgCount = 0;
+
+      for (const f of files){
+        const t = (f.type || "").toLowerCase();
+        const n = (f.name || "").toLowerCase();
+
+        if (t.startsWith("image/")){
+          if (imgCount >= MAX_IMAGES) continue;
+          const dataUrl = await fileToDataUrl(f);
+          parts.push({ type: "image_url", image_url: { url: dataUrl } });
+          imgCount++;
+          continue;
+        }
+
+        // ملفات → نحولها لنص
+        const fileText = await buildAttachmentText(f);
+        parts.push({ type: "text", text: `\n\n${fileText}\n` });
+      }
+
+      // فرّغ المرفقات
+      if (fileEl) fileEl.value = "";
+
+      // ✅ رسائل API: آخر user نبدله بـ parts
+      const apiMessages = [
+        {
+          role: "system",
+          content: "احكي باللهجة الأردنية فقط. ممنوع تذكر أي شي عن منصات/شركات/نماذج. ركّز بس على حلول الطاقة."
+        },
+        ...chat.map(m => ({ role: m.role, content: m.content }))
+      ];
+
+      apiMessages[apiMessages.length - 1] = { role: "user", content: parts };
+
       const r = await fetch(API_URL, {
         method:"POST",
         headers:{ "Content-Type":"application/json" },
         body: JSON.stringify({ messages: apiMessages })
       });
+
       const data = await r.json();
       if(!r.ok) throw new Error(data?.error || data?.message || "Request failed");
 
-      const reply = data.reply?.content ?? "لم يصل رد.";
+      let reply = data.reply?.content ?? "لم يصل رد.";
+      reply = stripBannedWords(reply);
+
       hideWaiting();
       add("assistant", reply);
       setStatus("جاهز");
     }catch(e){
       hideWaiting();
-      add("assistant", `❌ حصل خطأ أثناء الاتصال:\n\n\`${String(e.message || e)}\`\n\nتأكد من Worker والـSecret.`);
+      add("assistant", `❌ صار خطأ:\n\n\`${String(e.message || e)}\``);
       setStatus("خطأ اتصال", "warn");
     }finally{
       busy = false;
@@ -731,7 +924,7 @@
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "Eng-Farhan-GPT-chat.json";
+    a.download = "Eng-Farhan-chat.json";
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -740,8 +933,7 @@
 
   // Sidebar toggle on mobile
   $("toggleBtn").addEventListener("click", () => {
-    const s = document.getElementById("sidebar");
-    s.classList.toggle("open");
+    $("sidebar").classList.toggle("open");
   });
 
   // init
